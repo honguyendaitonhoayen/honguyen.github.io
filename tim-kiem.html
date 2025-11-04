@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tìm kiếm - Gia Phả</title>
+<link rel="stylesheet" href="assets/style.css"></head>
+<body>
+  <div class="container" style="padding-top:18px;">
+    <a href="index.html">← Về trang chủ</a>
+    <section class="section article">
+      <h2>Tìm kiếm trong Gia Phả</h2>
+      <p>Tìm kiếm đơn giản (offline): nhập tên, địa danh, hoặc đời, nhấn Tìm để tìm các đoạn khớp trong văn bản gia phả.</p>
+      <div class="searchbox">
+        <input id="q" placeholder="Nhập tên, ví dụ: Nguyễn Tiến Lộc">
+        <button onclick="doSearch()">Tìm</button>
+      </div>
+      <div id="results" class="result"></div>
+    </section>
+    <div class="footer">Ban Liên Lạc Họ Nguyễn – Đại Tôn – Hòa Yên</div>
+  </div>
+<script>
+async function loadText(){
+  try{
+    const resp = await fetch('assets/data/gia_pha.md');
+    const txt = await resp.text();
+    return txt;
+  }catch(e){
+    return null;
+  }
+}
+async function doSearch(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const results = document.getElementById('results');
+  results.innerHTML = 'Đang tìm...';
+  const txt = await loadText();
+  if(!txt){ results.innerHTML = '<em>Không thể tải tài liệu (trình duyệt chặn fetch từ file?). Hãy mở trang bằng server hoặc dùng trình duyệt hỗ trợ file://).</em>'; return; }
+  const lines = txt.split(/\\n/);
+  const out = [];
+  for(let i=0;i<lines.length;i++){
+    const ln = lines[i];
+    if(q.length>0 && ln.toLowerCase().includes(q)){
+      // highlight occurrences
+      const highlighted = ln.replace(new RegExp(q,'gi'), match => '<mark>'+match+'</mark>');
+      out.push(`<div style="padding:8px;border-bottom:1px solid #efe1cf;"><strong>Dòng ${i+1}:</strong> ${highlighted}</div>`);
+    }
+  }
+  results.innerHTML = out.length? out.join('') : '<em>Không tìm thấy kết quả.</em>';
+}
+</script>
+</body>
+</html>
